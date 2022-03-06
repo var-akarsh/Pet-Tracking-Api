@@ -2,37 +2,36 @@ const db = require('../models')
 const User = db.users
 const Op = db.Sequelize.Op
 const otpGenerator = require('otp-generator')
+// const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-
 
 User.prototype.toJSON =  function () {
   var values = Object.assign({}, this.get());
 
   delete values.password;
-  delete values.otp;
+  
   return values;
 }
 
 // User.prototype.generateAuthToken = async function() {
 //     const user = this
-//     const token = jwt.sign({ _id: user._id.toString() }, 'secret-token')
-
-//     user.tokens = user.tokens.concat({ token })
-//     await user.save()
+//     const token = jwt.sign({ id: user.id.toString() }, 'secret-token')
+//     user.tokens = token
 //     return token
 // }
 
 
-exports.create =(req,res)=>{
+exports.create = async (req,res)=>{
     if(!req.body.name || !req.body.mobileNumber ||!req.body.email)
     return res.status(400).send('Provide Credentials for the user')
     
-    // const token = jwt.sign()
+    
     const user ={
         name:req.body.name,
         mobileNumber:req.body.mobileNumber,
         email:req.body.email,
-        tokens:[]
+        password : await bcrypt.hash(req.body.password,8)
     }
     User.create(user).then(data=>{
         res.send(data)
@@ -42,7 +41,6 @@ exports.create =(req,res)=>{
 
 }
 
-
 exports.signin = async (req,res)=>{
     if(!req.body.mobileNumber)
     return res.status(400).send('Enter Mobile Number')
@@ -50,9 +48,12 @@ exports.signin = async (req,res)=>{
     const user = await User.findOne({where :{mobileNumber:req.body.mobileNumber}})
     if(!user)
     return res.status(404).send('')
-    user.active =true
+    // user.active =true
+    const token = jwt.sign({ id: user.id.toString()}, 'secret-token')
+    user.token = token
     if(req.body.otp !== user.otp)
     return res.send('Invalid OTP')
+    await user.save()
     res.send(user)
     
 }
@@ -78,7 +79,6 @@ exports.signout = async (req,res)=>{
     if(!user)
     return res.status(404).send('Enter Mobile Number')
 
-    user.active = false;
     await user.save()
     res.send('Successfully logged out ')
 
@@ -87,3 +87,10 @@ exports.signout = async (req,res)=>{
 
 
 
+
+
+
+
+  
+        
+    

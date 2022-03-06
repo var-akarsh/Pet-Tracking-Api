@@ -1,11 +1,15 @@
 module.exports = (sequelize,Sequelize)=>{
+    
+    
     const User = sequelize.define("user",{
         id:{
             type:Sequelize.INTEGER,
             primaryKey:true,
             autoIncrement:true
         },
-        
+        password:{
+            type: Sequelize.STRING
+        },
         name:{
             type:Sequelize.STRING
         },
@@ -19,14 +23,9 @@ module.exports = (sequelize,Sequelize)=>{
         },
         otp:{
             type:Sequelize.STRING
-        },
-        tokens:[{
-            token:{
-                type:Sequelize.STRING,
-                required: true
-            }
-            }]
+        }
         
         })
+
      return User   
 }

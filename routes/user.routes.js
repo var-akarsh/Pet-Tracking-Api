@@ -7,7 +7,7 @@ module.exports = app => {
     router.post('/signin', users.signin)
     router.post('/getOTP', users.getOTP)
     router.post('/signout',users.signout)
-    router.post('/addpet', pets.create)
+    router.post('/:id/addpet', pets.create)
 
     app.use('/api/users', router)
 
