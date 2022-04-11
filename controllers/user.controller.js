@@ -85,6 +85,27 @@ exports.signout = async (req,res)=>{
 }
 
 
+exports.getuser = async(req,res)=>{
+    if(!req.params.id)
+    return res.status(400).send('Error')
+    try{
+    const user = await User.findOne({where : {
+        id:req.params.id
+     },
+    include : [{
+        association : 'pets',
+        through : { attributes : [] }
+    }]
+} )
+    
+    res.send(user)
+    }
+    catch(error){
+        res.status(500).send(error)
+        console.log(error)
+    }
+}
+
 
 
 
